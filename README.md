@@ -5,7 +5,7 @@ Lua seaweedfs client with [seaweedfs](https://github.com/seaweedfs/seaweedfs).
 Status
 =======
 Production ready.
-[![CI](https://github.com/cooperlyt/lua-resty-seaweedfs/blob/main/.github/workflows/seaweedfs-gateway.yml/badge.svg)](https://github.com/cooperlyt/lua-resty-seaweedfs/actions)
+[![CI](https://github.com/cooperlyt/lua-resty-seaweedfs/.github/workflows/seaweedfs-gateway.yml/badge.svg)](https://github.com/cooperlyt/lua-resty-seaweedfs/actions)
 
 docker 
 
@@ -30,6 +30,8 @@ upload
 Install
 =======
   opm get cooperlyt/lua-resty-seaweedfs
+
+  docker image [coopersoft/seaweedfs-gateway](https://hub.docker.com/repository/docker/coopersoft/seaweedfs-gateway/general)
 
 Deprecated
 =======
