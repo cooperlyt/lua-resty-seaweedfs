@@ -19,7 +19,7 @@ jobs:
     steps: 
       - uses: actions/checkout@v3
       - name: Install deps
-        run: sudo apt-get -y install openresty-opm
+        run: apk add --no-cache openresty-opm
       - shell: bash
         run: opm build && opm upload
       - name: Log in to Docker Hub
