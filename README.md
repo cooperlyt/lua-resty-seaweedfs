@@ -5,9 +5,8 @@ Lua seaweedfs client with [seaweedfs](https://github.com/seaweedfs/seaweedfs).
 Status
 =======
 Production ready.
-[![CI](https://github.com/cooperlyt/lua-resty-seaweedfs/.github/workflows/seaweedfs-gateway.yml/badge.svg)](https://github.com/cooperlyt/lua-resty-seaweedfs/actions)
+[![CI](https://github.com/cooperlyt/lua-resty-seaweedfs/actions/workflows/seaweedfs-gateway.yml/badge.svg)](https://github.com/cooperlyt/lua-resty-seaweedfs/actions)
 
-docker 
 
 API
 =======
