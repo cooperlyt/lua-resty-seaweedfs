@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  gateway:
+    image: coopersoft/seaweedfs-gateway:1.0.0
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.labels.consul.cluster == server1
+    ports:
+      - 80:80
+    environment:
+      WEEDFS_ADDR: weedfs-master:9333
+    links:
+      - weedfs-master:weedfs-master
+    depends_on:
+      - weedfs-master
+
+  weedfs-master:
+    image: chrislusf/seaweedfs:3.55
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.labels.consul.cluster == server1
+    ports:
+      - 9333:9333
+      - 19333:19333
+      - 9380:9380
+      - 19380:19380
+      - 9324:9324
+    command: 'server -ip=192.168.1.21 -ip.bind=0.0.0.0 -master.port=9333 -dir="/data" -volume.max=62 -volume.port=9380 -metricsPort=9324'

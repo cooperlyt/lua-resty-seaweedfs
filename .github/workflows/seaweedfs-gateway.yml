@@ -33,6 +33,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2          
       - shell: bash
-        run: cd demo && ./docker_build.sh
+        run: cd openresty && ./docker_build.sh
 
 
