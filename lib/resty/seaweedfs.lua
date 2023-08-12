@@ -42,51 +42,31 @@ end
 
 _M.put = function(self,url,fid)
   local hc = http.new()
-  local res, err = hc:request_uri(self.schema .. '://' .. url .. '/' .. fid,{
+  return hc:request_uri(self.schema .. '://' .. url .. '/' .. fid,{
     method = "PUT",
     body = ngx.req.get_body_data(),
     -- headers = {
     -- }
   })
-  if not res then
-    ngx.log(ngx.ERR,"weedfs put error:",err)
-    return 500 , err
-  end
-  return res.status, res.body
 end
 
 _M.delete = function(self,fid)
   local hc = http.new()
-  local res, err = hc:request_uri(self.schema .. '://' .. self.master_url .. '/' .. fid,{
+  return hc:request_uri(self.schema .. '://' .. self.master_url .. '/' .. fid,{
     method = "DELETE",
   })
-  if not res then
-    ngx.log(ngx.ERR,"weedfs delete error:",err)
-    return 500 , err
-  end
-  return res.status, res.body
 end
 
 _M.assign = function(self)
   local hc = http.new()
   local request_url = self.schema .. '://' .. self.master_url .. "/dir/assign"
   ngx.log(ngx.INFO,"weedfs assign:",request_url)
-  local res, err = hc:request_uri(request_url)
-  if not res then
-    ngx.log(ngx.ERR,"weedfs assign error:",err)
-    return 500 , err
-  end
-  return res.status, res.body
+  return hc:request_uri(request_url)
 end
 
 _M.lookup = function(self,volume_id)
   local hc = http.new()
-  local res, err = hc:request_uri(self.schema .. '://' .. self.master_url .. "/dir/lookup?volumeId="..volume_id)
-  if not res then
-    ngx.log(ngx.ERR,"weedfs lookup error:",err)
-    return 500 , err
-  end
-  return res.status, res.body
+  return hc:request_uri(self.schema .. '://' .. self.master_url .. "/dir/lookup?volumeId="..volume_id)
 end
 
 _M.get = function(self,fid)
@@ -102,11 +82,7 @@ _M.get = function(self,fid)
     res, err = hc:request_uri(file_url)
   end
 
-  if not res then
-    ngx.log(ngx.ERR,"weedfs get error:",err)
-    return 500 , err
-  end
-  return res.status, res.body
+  return res, err
 
 end
 
@@ -206,45 +182,36 @@ end
 -- end
 
 _M.upload = function(self)
-  local code, body = self:assign()
-  if code ~= 200 then
-    return code, body
+  local res, err = self:assign()
+
+  if not res then
+    ngx.log(ngx.ERR,"weedfs assign error:",err)
+    return res, err
+  end
+
+  -- res.status , res.body
+
+  if res.status ~= 200 then
+    return res, err
   else
-    local assing_info = cjson.decode(body)
+    local assing_info = cjson.decode(res.body)
     ngx.req.read_body()
-    code, body = self:put(assing_info.publicUrl,assing_info.fid)
-    if code ~= 201 then
-      return code, body
+    res, err = self:put(assing_info.publicUrl,assing_info.fid)
+    if res.status ~= 201 then
+      return res, err
     else
-      local result_info = cjson.decode(body)
+      local result_info = cjson.decode(res.body)
       result_info.fid = assing_info.fid
       if self.hash == 'SHA256' then
         result_info.sha256 = sha256(ngx.req.get_body_data())
       elseif self.hash == 'MD5' then
         result_info.md5 = md5(ngx.req.get_body_data())
       end
-      return code, result_info
+      res.body = cjson.encode(result_info)
+      return res, err
     end
   end
 end
 
--- function weedfs:upload()
---   local code , body = self:assing()
---   if code ~= 200 then
---     return code, body
---   else
---     local assing_info = cjson.decode(body)
---     ngx.req.read_body()
---     local put_code, put_body = weedfs:put(assing_info.publicUrl,assing_info.fid);
---     if put_code ~= 201 then
---       return put_code, put_body
---     else
---       local result_info = cjson.decode(put_body)
---       result_info.fid = assing_info.fid
---       result_info.sha256 = weedfs:sha256()
---       return put_code, result_info
---     end
---   end
--- end
 
 return _M
