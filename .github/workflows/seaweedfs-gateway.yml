@@ -18,8 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     steps: 
       - uses: actions/checkout@v3
-      - name: Install deps
-        run: apk add --no-cache openresty-opm
+      - uses: leafo/gh-actions-openresty@v1
+        with:
+          openrestyVersion: "1.21.4.2"
       - shell: bash
         run: opm build && opm upload
       - name: Log in to Docker Hub
