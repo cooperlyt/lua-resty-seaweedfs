@@ -19,7 +19,7 @@ local DEFAULT_SCHEMA = "http"
 local sha256 = function(body)
   local resty_sha256 = require "resty.sha256"
   local sha256 = resty_sha256:new()
-  sha256:update(body_data)
+  sha256:update(body)
   local digest = sha256:final()
   local sha256_hash = ngx.encode_base64(digest)
   return sha256_hash
@@ -27,7 +27,7 @@ end
 
 local md5 = function(body)
   local md5 = resty_md5:new()
-  md5:update(body_data)
+  md5:update(body)
   local digest = md5:final()
   local md5_hash = ngx.encode_base64(digest)
   return md5_hash
