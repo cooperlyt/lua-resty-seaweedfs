@@ -5,4 +5,4 @@ RUN opm get ledgetech/lua-resty-http \
 
 RUN useradd -d /home/www -s /sbin/nologin www 
 
-COPY openresty/nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
+COPY nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
