@@ -22,7 +22,7 @@ jobs:
         with:
           openrestyVersion: "1.21.4.2"
       - shell: bash
-        run: echo -e 'github_account=cooperlyt\ngithub_token=${{ secrets.OPM_GITHUB_TOKEN }}\nupload_server=https://opm.openresty.org\ndownload_server=https://opm.openresty.org' > ~/.opmrc && cd /tmp && opm build && opm upload
+        run: echo -e 'github_account=cooperlyt\ngithub_token=${{ secrets.OPM_GITHUB_TOKEN }}\nupload_server=https://opm.openresty.org\ndownload_server=https://opm.openresty.org' > ~/.opmrc && opm build && opm upload
       - name: Log in to Docker Hub
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
