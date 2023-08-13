@@ -4,7 +4,7 @@
 local modulename = "seaweedfs"
 local _M = {}
 local mt = { __index = _M }
-_M._VERSION = '0.0.6'
+_M._VERSION = '0.0.7'
 _M._NAME = modulename
 
 
@@ -70,9 +70,9 @@ end
 _M.put = function(self,url,fid,data)
   local put_data = data or req_data()
   if not put_data then
-    return nil,"no body data"
+    return nil, "no body data"
   end
-  local res, err self.http:request_uri(self.schema .. '://' .. url .. '/' .. fid,{
+  local res, err = self.http:request_uri(self.schema .. '://' .. url .. '/' .. fid,{
     method = "PUT",
     body = put_data,
     -- headers = {
@@ -102,7 +102,6 @@ end
 
 _M.assign = function(self)
   local request_url = self.schema .. '://' .. self.master_url .. "/dir/assign"
-  ngx.log(ngx.INFO,"weedfs assign:",request_url)
   return self.http:request_uri(request_url)
 end
 
@@ -139,6 +138,7 @@ _M.upload = function(self)
   if res.status ~= 200 then
     return res, err
   else
+    ngx.log(ngx.INFO,"weedfs assign success:",res.body)
     local assing_info = cjson.decode(res.body) 
     return self:put(assing_info.publicUrl,assing_info.fid,put_data)
   end
