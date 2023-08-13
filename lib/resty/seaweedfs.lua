@@ -4,7 +4,7 @@
 local modulename = "seaweedfs"
 local _M = {}
 local mt = { __index = _M }
-_M._VERSION = '0.0.5'
+_M._VERSION = '0.0.6'
 _M._NAME = modulename
 
 
@@ -32,6 +32,7 @@ local req_data = function()
       end
     end
   end
+  return data
 end
 
 local sha256 = function(data)
