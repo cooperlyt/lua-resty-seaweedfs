@@ -44,7 +44,7 @@ end
 
 _M.put = function(self,url,fid)
   ngx.req.read_body()
-  return self:http:request_uri(self.schema .. '://' .. url .. '/' .. fid,{
+  return self.http:request_uri(self.schema .. '://' .. url .. '/' .. fid,{
     method = "PUT",
     body = ngx.req.get_body_data(),
     -- headers = {
@@ -53,7 +53,7 @@ _M.put = function(self,url,fid)
 end
 
 _M.delete = function(self,fid)
-  return self:http:request_uri(self.schema .. '://' .. self.master_url .. '/' .. fid,{
+  return self.http:request_uri(self.schema .. '://' .. self.master_url .. '/' .. fid,{
     method = "DELETE",
   })
 end
@@ -61,20 +61,20 @@ end
 _M.assign = function(self)
   local request_url = self.schema .. '://' .. self.master_url .. "/dir/assign"
   ngx.log(ngx.INFO,"weedfs assign:",request_url)
-  return self:http:request_uri(request_url)
+  return self.http:request_uri(request_url)
 end
 
 _M.lookup = function(self,volume_id)
-  return self:http:request_uri(self.schema .. '://' .. self.master_url .. "/dir/lookup?volumeId="..volume_id)
+  return self.http:request_uri(self.schema .. '://' .. self.master_url .. "/dir/lookup?volumeId="..volume_id)
 end
 
 _M.get = function(self,fid)
   local file_url = self.schema .. '://' .. self.master_url .. '/' .. fid
-  local res, err = self:http:request_uri(file_url)
+  local res, err = self.http:request_uri(file_url)
   if res and res.status >= 300 and res.status < 400 then
     -- file_url = res.headers["Location"]
     file_url = string.match(res.body,'"(.+)"')
-    res, err = self:http:request_uri(file_url)
+    res, err = self.http:request_uri(file_url)
   end
 
   return res, err
