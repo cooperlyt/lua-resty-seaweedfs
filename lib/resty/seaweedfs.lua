@@ -16,19 +16,19 @@ local setmetatable = setmetatable
 local DEFAULT_HASH = "NONE"
 local DEFAULT_SCHEMA = "http"
 
-local sha256 = function(body)
+local sha256 = function()
   local resty_sha256 = require "resty.sha256"
   local sha256 = resty_sha256:new()
-  sha256:update(body)
+  sha256:update(ngx.req.get_body_data())
   local digest = sha256:final()
   local sha256_hash = ngx.encode_base64(digest)
   return sha256_hash
 end
 
-local md5 = function(body)
+local md5 = function()
   local resty_md5 = require "resty.md5"
   local md5 = resty_md5:new()
-  md5:update(body)
+  md5:update(ngx.req.get_body_data())
   local digest = md5:final()
   local md5_hash = ngx.encode_base64(digest)
   return md5_hash
@@ -44,6 +44,9 @@ end
 
 _M.put = function(self,url,fid)
   ngx.req.read_body()
+  if not ngx.req.get_body_data() then
+    return nil,"no body data"
+  end
   return self.http:request_uri(self.schema .. '://' .. url .. '/' .. fid,{
     method = "PUT",
     body = ngx.req.get_body_data(),
@@ -101,13 +104,12 @@ _M.upload = function(self)
       return res, err
     else
       ngx.log(ngx.INFO,"weedfs upload success:",assing_info.fid)
-      ngx.log(ngx.INFO,"weedfs upload success:",ngx.req.get_body_data())
       local result_info = cjson.decode(res.body)
       result_info.fid = assing_info.fid
       if self.hash == 'SHA256' then
-        result_info.sha256 = sha256(ngx.req.get_body_data())
+        result_info.sha256 = sha256()
       elseif self.hash == 'MD5' then
-        result_info.md5 = md5(ngx.req.get_body_data())
+        result_info.md5 = md5()
       end
       res.body = cjson.encode(result_info)
       return res, err
