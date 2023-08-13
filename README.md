@@ -9,6 +9,15 @@ Production ready.
 
 [![CI](https://github.com/cooperlyt/lua-resty-seaweedfs/actions/workflows/seaweedfs-gateway.yml/badge.svg)](https://github.com/cooperlyt/lua-resty-seaweedfs/actions)
 
+USESAGE
+=======
+  + Implement seaweedfs API
+
+  + One step updoad file
+  
+  + Result Add request file hash code
+
+  + return image thumb
 
 API
 =======

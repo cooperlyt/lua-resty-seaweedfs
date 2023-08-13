@@ -4,7 +4,7 @@
 local modulename = "seaweedfs"
 local _M = {}
 local mt = { __index = _M }
-_M._VERSION = '0.0.4'
+_M._VERSION = '0.0.5'
 _M._NAME = modulename
 
 
@@ -16,22 +16,46 @@ local setmetatable = setmetatable
 local DEFAULT_HASH = "NONE"
 local DEFAULT_SCHEMA = "http"
 
-local sha256 = function()
-  local resty_sha256 = require "resty.sha256"
-  local sha256 = resty_sha256:new()
-  sha256:update(ngx.req.get_body_data())
-  local digest = sha256:final()
-  local sha256_hash = ngx.encode_base64(digest)
-  return sha256_hash
+local req_data = function()
+  local data = ngx.req.get_body_data()
+  if (not data) then
+    ngx.req.read_body()
+    data = ngx.req.get_body_data()
+    if (not data) then
+      local body_file_path = ngx.req.get_body_file()
+      if body_file_path then
+        local file = io.open(body_file_path, "r")
+        if file then
+          data = file:read("*a")
+          file:close()
+        end
+      end
+    end
+  end
 end
 
-local md5 = function()
-  local resty_md5 = require "resty.md5"
-  local md5 = resty_md5:new()
-  md5:update(ngx.req.get_body_data())
-  local digest = md5:final()
-  local md5_hash = ngx.encode_base64(digest)
-  return md5_hash
+local sha256 = function(data)
+  local hash_data = data or req_data()
+  if hash_data then
+    local resty_sha256 = require "resty.sha256"
+    local sha256 = resty_sha256:new()
+    sha256:update(hash_data)
+    local digest = sha256:final()
+    local sha256_hash = ngx.encode_base64(digest)
+    return sha256_hash
+  end
+end
+
+local md5 = function(data)
+  local hash_data = data or req_data()
+  if hash_data then
+    local resty_md5 = require "resty.md5"
+    local md5 = resty_md5:new()
+    md5:update(hash_data)
+    local digest = md5:final()
+    local md5_hash = ngx.encode_base64(digest)
+    return md5_hash
+  end
 end
 
 _M.new = function(self, options)
@@ -42,17 +66,31 @@ _M.new = function(self, options)
   return setmetatable(self, mt)
 end
 
-_M.put = function(self,url,fid)
-  ngx.req.read_body()
-  if not ngx.req.get_body_data() then
+_M.put = function(self,url,fid,data)
+  local put_data = data or req_data()
+  if not put_data then
     return nil,"no body data"
   end
-  return self.http:request_uri(self.schema .. '://' .. url .. '/' .. fid,{
+  local res, err self.http:request_uri(self.schema .. '://' .. url .. '/' .. fid,{
     method = "PUT",
-    body = ngx.req.get_body_data(),
+    body = put_data,
     -- headers = {
     -- }
   })
+
+  if res and res.status == 201 then
+    ngx.log(ngx.INFO,"weedfs upload success:",fid)
+    local result_info = cjson.decode(res.body)
+    result_info.fid = fid
+    if self.hash == 'SHA256' then
+      result_info.sha256 = sha256(put_data)
+    elseif self.hash == 'MD5' then
+      result_info.md5 = md5(put_data)
+    end
+    res.body = cjson.encode(result_info)
+  end
+  return res, err
+
 end
 
 _M.delete = function(self,fid)
@@ -85,6 +123,11 @@ _M.get = function(self,fid)
 end
 
 _M.upload = function(self)
+  local put_data = req_data()
+  if not put_data then
+    return nil,"no body data"
+  end
+
   local res, err = self:assign()
 
   if not res then
@@ -92,28 +135,11 @@ _M.upload = function(self)
     return res, err
   end
 
-  -- res.status , res.body
-
   if res.status ~= 200 then
     return res, err
   else
-    local assing_info = cjson.decode(res.body)
-    
-    res, err = self:put(assing_info.publicUrl,assing_info.fid)
-    if res.status ~= 201 then
-      return res, err
-    else
-      ngx.log(ngx.INFO,"weedfs upload success:",assing_info.fid)
-      local result_info = cjson.decode(res.body)
-      result_info.fid = assing_info.fid
-      if self.hash == 'SHA256' then
-        result_info.sha256 = sha256()
-      elseif self.hash == 'MD5' then
-        result_info.md5 = md5()
-      end
-      res.body = cjson.encode(result_info)
-      return res, err
-    end
+    local assing_info = cjson.decode(res.body) 
+    return self:put(assing_info.publicUrl,assing_info.fid,put_data)
   end
 end
 
