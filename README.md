@@ -2,6 +2,12 @@
 
 Lua seaweedfs client with [seaweedfs](https://github.com/seaweedfs/seaweedfs).
 
+
+  + Implement seaweedfs API
+  + One step updoad file
+  + Result Add request file hash code
+  + Return image thumb
+
 Status
 =======
 Production ready.
@@ -11,16 +17,8 @@ Production ready.
 
 USESAGE
 =======
-  + Implement seaweedfs API
 
-  + One step updoad file
-  
-  + Result Add request file hash code
-
-  + Return image thumb
-
-API
-=======
+API:
 
 ```lua
 local seaweedfs = require "resty.seaweedfs"
@@ -39,7 +37,7 @@ local seaweedfs = require "resty.seaweedfs"
 
 + upload
 
-Openresty
+Openresty:
 
 + http://${url}/file/upload
 
