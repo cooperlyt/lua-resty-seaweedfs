@@ -26,6 +26,7 @@ local sha256 = function(body)
 end
 
 local md5 = function(body)
+  local resty_md5 = require "resty.md5"
   local md5 = resty_md5:new()
   md5:update(body)
   local digest = md5:final()
