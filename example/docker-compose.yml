@@ -12,6 +12,7 @@ services:
       - 80:80
     environment:
       WEEDFS_ADDR: weedfs-master:9333
+      IMG_THUMB_SIZE: 500x300
     links:
       - weedfs-master:weedfs-master
     depends_on:
