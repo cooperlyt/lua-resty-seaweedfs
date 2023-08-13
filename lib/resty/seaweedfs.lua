@@ -4,7 +4,7 @@
 local modulename = "seaweedfs"
 local _M = {}
 local mt = { __index = _M }
-_M._VERSION = '0.0.3'
+_M._VERSION = '0.0.4'
 _M._NAME = modulename
 
 
