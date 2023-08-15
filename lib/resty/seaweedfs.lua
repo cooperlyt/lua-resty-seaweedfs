@@ -4,7 +4,7 @@
 local modulename = "seaweedfs"
 local _M = {}
 local mt = { __index = _M }
-_M._VERSION = '0.0.8'
+_M._VERSION = '0.0.9'
 _M._NAME = modulename
 
 
@@ -72,7 +72,7 @@ _M.put = function(self,url,fid,data)
     return nil, "no body data"
   end
   local http = resty_http.new()
-  local res, err = http.request_uri(self.schema .. '://' .. url .. '/' .. fid,{
+  local res, err = http:request_uri(self.schema .. '://' .. url .. '/' .. fid,{
     method = "PUT",
     body = put_data,
     -- headers = {
@@ -96,7 +96,7 @@ end
 
 _M.delete = function(self,fid)
   local http = resty_http.new()
-  return http.request_uri(self.schema .. '://' .. self.master_url .. '/' .. fid,{
+  return http:request_uri(self.schema .. '://' .. self.master_url .. '/' .. fid,{
     method = "DELETE",
   })
 end
@@ -104,22 +104,22 @@ end
 _M.assign = function(self)
   local http = resty_http.new()
   local request_url = self.schema .. '://' .. self.master_url .. "/dir/assign"
-  return http.request_uri(request_url)
+  return http:request_uri(request_url)
 end
 
 _M.lookup = function(self,volume_id)
   local http = resty_http.new()
-  return http.request_uri(self.schema .. '://' .. self.master_url .. "/dir/lookup?volumeId="..volume_id)
+  return http:request_uri(self.schema .. '://' .. self.master_url .. "/dir/lookup?volumeId="..volume_id)
 end
 
 _M.get = function(self,fid)
   local http = resty_http.new()
   local file_url = self.schema .. '://' .. self.master_url .. '/' .. fid
-  local res, err = http.request_uri(file_url)
+  local res, err = http:request_uri(file_url)
   if res and res.status >= 300 and res.status < 400 then
     -- file_url = res.headers["Location"]
     file_url = string.match(res.body,'"(.+)"')
-    res, err = http.request_uri(file_url)
+    res, err = http:request_uri(file_url)
     if err then
       ngx.log(ngx.ERR,"weedfs get error:",err)
     end
